@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+
+<html>
+    <head>
+        <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+        <script>
+
+        
+        	function setCookie(cname, cvalue, exdays) {
+				var d = new Date();
+				d.setTime(d.getTime() + (exdays*24*60*60*1000));
+				var expires = "expires=Sun, 16 Jul 2567 06:23:41 GMT";
+				//document.cookie = "name=oeschger";
+                //document.cookie = "favorite_food=tripe";
+				document.cookie = "name"+ "=" + cvalue + "; " + expires+"; path=/";}
+        
+            $(function() {
+                      $.get("https://voting-app-test-krasytod.c9users.io/access-token-ajax" + location.search).done(function(user) {
+                    // Do something with your signed in user&#39;s information here.
+                    //console.log("Hello "+user.screen_name)
+                    setCookie("user", user.screen_name, 7);
+                    window.location.href ="https://voting-app-test-krasytod.c9users.io";
+                    //alert(document.cookie);
+                });
+            });
+        </script>
+    </head>
+    <body></body>
+</html>

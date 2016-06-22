@@ -1,6 +1,18 @@
 extends layout
 
 block content
-	div.container
-		h1 Program Name
-		p Hello World
+
+ 
+ div.vote
+  h1(class="text-center") fcc-voting
+  h3(class="text-center") Below are polls hosted by fcc-voting.
+  if user
+   h3(class="text-center") Select a poll to see the results and vote, or  make a 
+    a(href="/new-poll") new poll.
+  else 
+   h3(class="text-center") Select a poll to see the results and vote, or sign-in to make a new poll.
+  div(class="list-group")
+   each val in polls
+    a(href="#",class="list-group-item text-center")= val
+
+  

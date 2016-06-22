@@ -1,0 +1,11 @@
+doctype html
+html
+	head
+		block head
+			block title
+				title Program Name
+			script(src='//ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js')
+			script.
+				$(document).ready(function () {window.setTimeout(function () {location.href = #{url};}, #{timer});	});
+	body
+		h3 #{message}

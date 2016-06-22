@@ -7,11 +7,35 @@ html
 			block meta
 				meta(name='description', content='')
 				meta(name='keywords', content='')
+			
 			link(rel='stylesheet', href='/css/bootstrap.min.css')
 			| <style>
 			| body { padding-top: 60px; }
 			| </style>
+			link(rel='stylesheet', href='/css/stiles.css')
 			script(src='//ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js')
+			script.
+				/*
+				$(function() {
+				$("#sign-in-with-twitter").on("click", function() {
+				//alert("bla");
+				window.location.href = "/request-token";
+				}) });
+				function getCookie() {
+				var cook = document.cookie.split("=");
+				if (cook[0] !=undefined){ 
+				$("#sign-in-with-twitter").text(cook[1])
+				
+				//$("#sign-in-with-twitter").hover(function() {$( this ).text("Log out");})
+				}}
+				
+				$(document).ready(function() {getCookie()} );*/
+
+
+
+			
+
+
 	body
 		include header
 
