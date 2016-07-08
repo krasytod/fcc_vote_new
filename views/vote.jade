@@ -26,7 +26,7 @@ block content
    div.chart
 
   if user  
-   a(href="https://twitter.com/share" class="twitter-share-button" data-show-count="false") Tweet
+   a(href="https://twitter.com/share" class="twitter-share-button btn-block " data-show-count="false") Share on Twitter
    if user.id == vote.user 
     button(class="btn btn-block btn-danger",id="delete",value = "#{vote._id}" ) Delete this poll
  script(async, defer, src="//platform.twitter.com/widgets.js", charset="utf-8")
