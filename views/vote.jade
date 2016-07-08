@@ -22,10 +22,11 @@ block content
               if user
                li  
                 a(href='#' class="new_value") Add a custom option
-                a(href="https://twitter.com/share" class="twitter-share-button" data-show-count="false") Tweet
+                
    div.chart
 
   if user  
+   a(href="https://twitter.com/share" class="twitter-share-button" data-show-count="false") Tweet
    if user.id == vote.user 
     button(class="btn btn-block btn-danger",id="delete",value = "#{vote._id}" ) Delete this poll
  script(async, defer, src="//platform.twitter.com/widgets.js", charset="utf-8")
