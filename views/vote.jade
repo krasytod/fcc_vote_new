@@ -19,14 +19,16 @@ block content
               each val, key in vote.options
                li 
                 a(href='#' class="value")= key
-              li  
-               a(href='#' class="new_value") Add a custom option
+              if user
+               li  
+                a(href='#' class="new_value") Add a custom option
+                a(href="https://twitter.com/share" class="twitter-share-button" data-show-count="false") Tweet
    div.chart
 
   if user  
    if user.id == vote.user 
     button(class="btn btn-block btn-danger",id="delete",value = "#{vote._id}" ) Delete this poll
- script    
+ script(async, defer, src="//platform.twitter.com/widgets.js", charset="utf-8")
  script.
   function vote_ajax(vote_option){ $.get("/vote",{ poll:"#{vote._id}",option: vote_option},function(data) {location.reload(true);}) }
   $('.new_value').on("click",function(e){	 $( "#vote" ).after( "<h4>Vote with my own option:</h4> <input text class='myown' onchange='vote_ajax(this.value)'>");  });
