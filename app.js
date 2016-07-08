@@ -40,7 +40,7 @@ console.log(path.join(__dirname, 'static'))
 
 require('dotenv').load();
 
-mongoose.connect(process.env.MONGO_URI||process.env.MONGODB_URI);
+mongoose.connect(process.env.MONGODB_URI);
 
 //scheema
 var voteSchema = mongoose.Schema({user:String,
