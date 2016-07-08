@@ -11,6 +11,16 @@ script(src='/scripts/bootstrap.min.js')
 
 
 script.
+	$('#delete').click(function() {var r = confirm("Are you sure?"); if (r == true) {  console.log("ajax!");
+	$.get("/delete_poll",{ id: this.value },function(data) {alert(data); 
+	window.location.href="/";}
+	);  }
+		
+	else {alert( "You pressed Cancel!");}
+	//
+	});
+	
+	
 	/*var name= "";
 	var css_background="" 
 	$("#sign-in-with-twitter").hover(function() {

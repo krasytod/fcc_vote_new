@@ -15,6 +15,7 @@ var express = require('express')
   , logger = require('morgan')
   , methodOverride = require('method-override'),
     passport = require('passport'),
+    mongoose = require('mongoose'),
     Strategy = require('passport-twitter').Strategy;  
 
 var app = express();
@@ -29,13 +30,25 @@ app.use(bodyParser.json());
 app.use(methodOverride('_method'));
 app.use(require('stylus').middleware(__dirname + '/public'));
 app.use(express.static(path.join(__dirname, 'public')));
+app.use('/static', express.static(__dirname + '/static'));
 console.log(path.join(__dirname, 'public'))
+console.log(path.join(__dirname, 'static'))
 
 /*if (app.get('env') == 'development') {
 	app.locals.pretty = true;
 } */
 
 require('dotenv').load();
+
+mongoose.connect(process.env.MONGO_URI||process.env.MONGODB_URI);
+
+//scheema
+var voteSchema = mongoose.Schema({user:String,
+    title: String,options : { }                  //type : Array , "default" : [] 
+});
+
+var voteModel= mongoose.model('votes', voteSchema);
+
 
 // Configure the Twitter strategy for use by Passport.
 //
@@ -102,27 +115,35 @@ app.get('/profile',
   });
 
 
-var secret = require('./sec.json');
-var Twitter = require("node-twitter-api");
-
-/*
-var twitter = new Twitter({
-        consumerKey: secret.twitter.consumerKey,
-        consumerSecret: secret.twitter.consumerSecret,
-        callback: secret.twitter.callbackUrl})
-*/
-//app.get('/', routes.index);
-//var _requestSecret;
-//console.log(process.env.MONGO_URI)
-
+//var secret = require('./sec.json');
+//var Twitter = require("node-twitter-api");
 
 app.get("/", function(req, res) {
-  res.render("index.jade",{polls: ['first','second','3'],loged:true,user: req.user });
+   var polls_arr =[]
+  voteModel.find({}, function (err, result) {  //
+    
+      if (err){ 
+         console.log("error!!! %s", err)  
+         res.writeHeader(200, {"Content-Type": "text/html"});  
+         res.end("Error with DB. Please contact the support");
+         return ;
+       }
+      else
+        {
+        if (result !== null) {
+        for (var key in result)
+         {var id =    result[key]._id;
+         var title = result[key].title;
+          polls_arr.push(  [title,id]  ) }
+         console.log(polls_arr)   
+        } } 
+    res.render("index.jade",{polls: polls_arr,loged:true,user: req.user });  
+  });
 });
 
 app.get("/logout", function(req, res)
 {
-  req.logout();
+  req.logout();  
   res.redirect('/');  
 });
 
@@ -141,11 +162,177 @@ app.get("/new-poll", require('connect-ensure-login').ensureLoggedIn(), function(
     
 });
 
+app.get("/mypolls", require('connect-ensure-login').ensureLoggedIn(),function(req, res)
+{
+   var id  = req.user.id;    
+   var polls_arr =[]
+  voteModel.find({user:id}, function (err, result) {  //
+    
+      if (err){ 
+         console.log("error!!! %s", err)  
+         res.writeHeader(200, {"Content-Type": "text/html"});  
+         res.end("Error with DB. Please contact the support");
+         return ;
+       }
+      else
+        {
+        if (result !== null) {
+        for (var key in result)
+         {var id =    result[key]._id;
+         var title = result[key].title;
+          polls_arr.push(  [title,id]  ) }
+         console.log(polls_arr)   
+        } } 
+    res.render("index.jade",{polls: polls_arr,loged:true,user: req.user,mypolls:true });  
+  });
+});
+
+
+
+
+
+app.get("/polls/:poll", function(req, res)
+{
+ //req.logout();
+ // console.log(req.params.poll);
+ var poll = req.params.poll;
+ voteModel.findOne({_id: poll}, function (err, result) {  //
+      if (err){ 
+         console.log("error!!! %s", err)  
+         res.writeHeader(200, {"Content-Type": "text/html"});  
+         res.end("Error with DB. Please contact the support");
+         return ;
+       }
+      else
+        {
+        if (result !== null) 
+        {
+            //[{'age':'<5','population':'4659'},{'age':'135','population':'14659'}]
+            var votes_arr = [];
+            var draw_chart = false
+            for (var key in result.options) {
+              if (result.options.hasOwnProperty(key)) {
+                
+                if (result.options[key]>0)
+                {
+                votes_arr.push({'name':key,'population':result.options[key]})
+                draw_chart = true;
+                //console.log(key + " -> " + result.options[key]);
+              }}
+            }
+            res.render("vote.jade",{vote:result,user: req.user, chart_data:JSON.stringify(votes_arr),draw_chart:draw_chart});
+         console.log(result,votes_arr)  }
+        else
+        {res.end("Not FOUND")}
+     }   });    });
+
+
+app.get("/vote", function(req, res)
+{
+ var poll = req.query.poll;
+ var options_obj = {}
+ //options_obj[req.query.option]=0;
+ 
+ voteModel.findById(poll, function (err, result) {  //
+      if (err){ 
+         console.log("error!!! %s", err)  
+         res.writeHeader(200, {"Content-Type": "text/html"});  
+         res.end("Error with DB. Please contact the support");
+         return ;
+       }
+      else
+        {
+        if (result !== null) 
+        {
+        console.log("kvo e tui: ",result)    
+            //if option already exists
+        if ( req.query.option in result.options)
+         {
+           var options = JSON.parse(JSON.stringify(result.options));     //to copy object
+           options[req.query.option] +=1
+           result.options = options;
+           res.end("Done")  }
+        //if is a new option
+        else
+        {
+        var options = JSON.parse(JSON.stringify(result.options));     //to copy object
+        options[req.query.option] =1
+        result.options = options;
+        //console.log("new option: ", options) 
+        res.end("Done")    
+        }
+        //console.log("tosave: ", result) 
+        result.save(function(err) {
+         if (err)
+             throw err
+        //console.log("err ", err)     
+        });
+           } //end of inside else
+        
+        
+        else
+        {res.end("Not FOUND")}   }   });   
+    
+    /* voteModel.update({ _id: poll}, { $set: { title:"newName"}},function(err,result)
+     {
+         if (err) return (err);
+         console.log("update: ",result);
+         
+     }
+     
+     );  
+    */
+    
+});
+
+
+app.get("/pie", function(req, res)
+{
+ res.sendfile('static/pie.html');
+
+});
+
+
+
+app.get("/delete_poll", function(req, res)
+{
+ var id_for_delete = req.query.id;
+ voteModel.find({ _id:id_for_delete}).remove( function (err, result)
+ {
+     //this is the callback of remove record
+        if (err){ 
+         console.log("error!!! %s", err)  
+         res.end("Error deleting record from DB. Please contact support");
+         return ;
+       }
+       else
+        {
+         res.end("Job Done!");   
+        }
+       }
+ );
+
+});
+
+
+
 app.post("/new_poll_post_request",function(req,res){
-var title=req.body.title;
-var options=req.body.options;
-
-
+ var title=req.body.title;
+ var options=req.body.options;
+ var id  = req.user.id;
+ var options_obj = {}
+ options.split("\r\n").forEach(function(element, index, array){
+   if (element!="")
+    {options_obj[element] = 0;}
+ })
+ //console.log (options_obj); 
+ voteModel.create({ user: id ,title:title,options: options_obj}, function (err, result) {
+                if (err) {console.log("Error in save"); res.end("Error with DB");  return ; } //return {error:true};
+                else {
+                    console.log(result) 
+                    res.render("redirect.jade",{message:"New Poll ia added",timer:3000,url:"'polls/"+result._id+"'"});
+                    return } 
+  })
 });
 
 

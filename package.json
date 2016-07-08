@@ -2,13 +2,15 @@
   "name": "nodebootstraper",
   "version": "0.0.2",
   "dependencies": {
+    "body-parser": "*",
+    "connect-ensure-login": "^0.1.1",
     "express": "*",
     "jade": "*",
-    "stylus": "*",
-	"serve-favicon": "*",
-	"morgan": "*",
-	"body-parser": "*",
-	"method-override": "*"
+    "method-override": "*",
+    "morgan": "*",
+    "node-twitter-api": "^1.7.2",
+    "serve-favicon": "*",
+    "stylus": "*"
   },
   "engines": {
     "node": "0.10.30",

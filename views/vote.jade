@@ -1,0 +1,36 @@
+extends layout
+
+block content
+ - var polls= ['first','second','3'] 
+ - var poll_id = 314
+ //- var data = 
+ 
+ div(class="container vote")
+  div.row
+   div(class="col-md-6")
+    h2(class="text-left") #{vote.title}
+    h4(class="text-left") I'd like to vote for...:
+    div.nav-collapse
+        ul.nav
+          li(id='vote').dropdown
+            a(data-toggle='dropdown', href='#menu1').dropdown-toogle Choose option
+              b.caret
+            ul.dropdown-menu
+              each val, key in vote.options
+               li 
+                a(href='#' class="value")= key
+              li  
+               a(href='#' class="new_value") Add a custom option
+   div.chart
+
+  if user  
+   if user.id == vote.user 
+    button(class="btn btn-block btn-danger",id="delete",value = "#{vote._id}" ) Delete this poll
+ script    
+ script.
+  function vote_ajax(vote_option){ $.get("/vote",{ poll:"#{vote._id}",option: vote_option},function(data) {location.reload(true);}) }
+  $('.new_value').on("click",function(e){	 $( "#vote" ).after( "<h4>Vote with my own option:</h4> <input text class='myown' onchange='vote_ajax(this.value)'>");  });
+  $('.value').on('click', function(e) {vote_ajax (this.text)})
+ if draw_chart
+  script.
+   make_chart( !{chart_data})
